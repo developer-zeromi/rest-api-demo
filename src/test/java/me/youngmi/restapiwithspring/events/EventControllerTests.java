@@ -1,11 +1,14 @@
 package me.youngmi.restapiwithspring.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)//@RunWith(SpringRunner.class) junit 4 version
-@WebMvcTest // Web과 관련 된 빈 등록, MocMvc 주입 받아 사용 가능
+//@WebMvcTest // Web과 관련 된 빈 등록, MocMvc 주입 받아 사용 가능
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EventControllerTests {
 
     @Autowired
@@ -29,12 +34,10 @@ public class EventControllerTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
-    EventRepository eventRepository;
-
     @Test
     public void createEvent() throws Exception {
         Event event = Event.builder()
+                .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2024, 03, 13, 22, 05))
@@ -45,9 +48,10 @@ public class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 스타텁 팩토리")
+                .free(true)
+                .offline(false)
+                .eventStatus(EventStatus.PUBLISHED)
                 .build();
-        event.setId(10);
-        Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(post("/api/events") // 요청
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,6 +62,9 @@ public class EventControllerTests {
                 .andExpect(jsonPath("id").exists()) // id 확인
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("id").value(Matchers.not(100))) // 직접 입력한 값이 들어오면 안됨
+                .andExpect(jsonPath("free").value(Matchers.not(true))) // 서비스가 계산 한 값이 들어와야 함
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name())) // 로직이 연산한 값이 들어와야 함
         ;
     }
 
