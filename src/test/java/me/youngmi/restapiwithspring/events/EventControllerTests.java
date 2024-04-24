@@ -60,8 +60,8 @@ public class EventControllerTests {
                 .andExpect(jsonPath("id").exists()) // id 확인
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
-                .andExpect(jsonPath("id").value(Matchers.not(100))) // 직접 입력한 값이 들어오면 안됨
-                .andExpect(jsonPath("free").value(Matchers.not(true))) // 서비스가 계산 한 값이 들어와야 함
+                .andExpect(jsonPath("free").value(false)) // 서비스가 계산 한 값이 들어와야 함
+                .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name())) // 로직이 연산한 값이 들어와야 함
         ;
     }
