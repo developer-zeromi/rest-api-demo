@@ -1,9 +1,18 @@
 package me.youngmi.restapiwithspring.events;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.runner.RunWith;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(JUnitParamsRunner.class)
 class EventTest {
 
     @Test
@@ -31,59 +40,49 @@ class EventTest {
         assertThat(event.getDescription()).isEqualTo(description);
     }
 
-    @Test
-    public void testFree() {
-        //given
-        Event event = Event.builder()
-                .basePrice(0)
-                .maxPrice(0)
-                .build();
-        //when
-        event.update();
-        //then
-        assertThat(event.isFree()).isTrue();
-
-        //given
-        event = Event.builder()
-                .basePrice(100)
-                .maxPrice(0)
-                .build();
-        //when
-        event.update();
-        //then
-        assertThat(event.isFree()).isFalse();
-
-        //given
-        event = Event.builder()
-                .basePrice(0)
-                .maxPrice(100)
-                .build();
-        //when
-        event.update();
-        //then
-        assertThat(event.isFree()).isFalse();
+    static Stream<Arguments> paramsForTestFree() {
+        return Stream.of(
+                Arguments.of(0, 0, true),
+                Arguments.of(100, 0, false),
+                Arguments.of(0, 100, false)
+        );
     }
 
-    @Test
-    public void testOffline() {
+    @ParameterizedTest
+    @MethodSource("paramsForTestFree")
+    public void testFree(int basePrice, int maxPrice, boolean isFree) {
         //given
         Event event = Event.builder()
-                .location("강남역 네이버 D2 스타텁 팩토리")
-                .maxPrice(0)
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
                 .build();
         //when
         event.update();
         //then
-        assertThat(event.isOffline()).isTrue();
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
 
+    static Stream<Arguments> paramsOfTestOffline() {
+        return Stream.of(
+                Arguments.of("강남역 네이버 D2 스타텁 팩토리", true),
+                Arguments.of("", false),
+                Arguments.of("    ", false),
+                Arguments.of(null, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("paramsOfTestOffline")
+    public void testOffline(String location, boolean isOffline) {
         //given
-        event = Event.builder()
+        Event event = Event.builder()
+                .location(location)
                 .maxPrice(0)
                 .build();
         //when
         event.update();
         //then
-        assertThat(event.isOffline()).isFalse();
+        assertThat(event.isOffline()).isEqualTo(isOffline);
     }
 
 }
