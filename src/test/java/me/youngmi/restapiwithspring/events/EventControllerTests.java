@@ -2,15 +2,11 @@ package me.youngmi.restapiwithspring.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.youngmi.restapiwithspring.common.TestDescription;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -63,6 +59,10 @@ public class EventControllerTests {
                 .andExpect(jsonPath("free").value(false)) // 서비스가 계산 한 값이 들어와야 함
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name())) // 로직이 연산한 값이 들어와야 함
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-event").exists())
+//                .andExpect(jsonPath("_link.profile").exists())
         ;
     }
 
