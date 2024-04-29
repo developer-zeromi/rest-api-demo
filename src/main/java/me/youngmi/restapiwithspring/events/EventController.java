@@ -1,6 +1,7 @@
 package me.youngmi.restapiwithspring.events;
 
 import jakarta.validation.Valid;
+import me.youngmi.restapiwithspring.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -34,14 +35,14 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors erros) {
-        if (erros.hasErrors()) {
-            return ResponseEntity.badRequest().body(erros);
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        if (errors.hasErrors()) {
+            return badRequest(errors);
         }
 
-        eventValidator.validate(eventDto, erros);
-        if (erros.hasErrors()) {
-            return ResponseEntity.badRequest().body(erros);
+        eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class);
@@ -61,5 +62,9 @@ public class EventController {
         EventResource eventResource = new EventResource(event, links);
 
         return ResponseEntity.created(createdUri).body(eventResource);
+    }
+
+    private ResponseEntity badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(ErrorsResource.modelOf(errors));
     }
 }
