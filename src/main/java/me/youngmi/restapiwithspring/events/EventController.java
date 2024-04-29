@@ -54,7 +54,8 @@ public class EventController {
         List<Link> links = Arrays.asList(
 //                selfLinkBuilder.withSelfRel(),
                 linkTo(EventController.class).withRel("query-events"),
-                selfLinkBuilder.withRel("update-event")
+                selfLinkBuilder.withRel("update-event"),
+                Link.of("/docs/index.html/resources-events-create").withRel("profile")
         );
 
         EventResource eventResource = new EventResource(event, links);
