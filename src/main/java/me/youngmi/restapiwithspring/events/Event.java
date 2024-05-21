@@ -2,6 +2,8 @@ package me.youngmi.restapiwithspring.events;
 
 import jakarta.persistence.*;
 import lombok.*;
+import me.youngmi.restapiwithspring.accounts.Account;
+import me.youngmi.restapiwithspring.accounts.AccountRole;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +28,8 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+    @ManyToOne
+    private Account manager;
 
     public void update() {
         // update free
